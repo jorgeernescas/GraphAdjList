@@ -39,10 +39,11 @@ void addExtra(tstGraph *g,
 
 /*           PRIVATE FUNCTIONS           */
 tstQueue* searchNodes(tstGraph *g, char *s);
+tstQueue* requestBasicQuery(tenEdgeType type, char *s);
 
 void printGraph(tstGraph *g);
 tenbool compString(char *str1, char *str2, uint8 n);
-
+void printAdjElemQueue(tstQueue *q);
 /*******          MAIN              ********/
 void main(void){
 
@@ -61,8 +62,9 @@ void main(void){
     
     q_AdjElem = searchNodes(g,"A0122");
     printAdjElemQueue(q_AdjElem);
+    q_AdjElem = requestBasicQuery(teaches,"Matematicas");
+    printAdjElemQueue(q_AdjElem);
 }
-
 
 void printAdjElemQueue(tstQueue *q){
 
@@ -145,6 +147,7 @@ tstQueue* searchNodes(tstGraph *g, char *s){
     tstAdjElem *tmp=g->adjListHead;
     
     q=CreateQueue();
+    
 
     while(tmp != NULL_PTR){
         switch(getNodeType(tmp)){
@@ -180,6 +183,78 @@ tstQueue* searchNodes(tstGraph *g, char *s){
             default:
                  printf("NOT IMPLEMENTED\n");
                  break;
+        }
+        tmp = tmp->next;
+    }
+    return q;
+}
+
+tstQueue* requestBasicQuery(tenEdgeType type, char *s){
+    
+    tenNodeType filter;
+    tstAdjNode *node;
+    tstQueue *q;
+    tstAdjElem *tmp=g->adjListHead;
+    
+    q=CreateQueue();
+    
+    if(type == courses || type == isPartTo ||
+       type == studiesIn || type == coursesE){
+        filter = student;
+    }
+    else if(type == teaches || type == teachesIn || type == teachesE){
+        filter = professor;
+    }
+    else if(type == partOfPlan)
+    {
+        filter = course;
+    }
+    else if(type == belongsTo)
+    {
+        filter = extra;
+    }
+    
+    
+    while(tmp != NULL_PTR){
+        if(getNodeType(tmp) == filter){
+            node = tmp->first_adj;
+            while(node != NULL){
+                if(type == node->tenEdgeType){
+                    switch(getNodeType(tmp)){
+                        case student:
+                            if(compString(s,getStudentVertex(tmp)->name,strlen(s))==TRUE
+                               || compString(s,getStudentVertex(tmp)->PLastName,strlen(s))==TRUE
+                               || compString(s,getStudentVertex(tmp)->MLastName,strlen(s))==TRUE
+                               || compString(s,getStudentVertex(tmp)->ID,strlen(s))==TRUE){
+                                printf("Result found... Enqueue...\n");
+                                Enqueue(q,(void*)tmp);
+                            }
+                            break;
+                        case professor:
+                            printf("NOT IMPLEMENTED\n");
+                            break;
+                        case course:
+                            printf("NOT IMPLEMENTED\n");
+                            break;
+                        case degree:
+                            printf("NOT IMPLEMENTED\n");
+                            break;
+                        case area:
+                            printf("NOT IMPLEMENTED\n");
+                            break;
+                        case campus:
+                            printf("NOT IMPLEMENTED\n");
+                            break;
+                        case extra:
+                            printf("NOT IMPLEMENTED\n");
+                            break;
+                        default:
+                            printf("NOT IMPLEMENTED\n");
+                            break;
+                    }
+                }
+                node = node->next;
+            }
         }
         tmp = tmp->next;
     }
